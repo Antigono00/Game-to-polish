@@ -22,9 +22,9 @@ export const calculateDerivedStats = (creature) => {
 
 // Calculate damage for an attack
 export const calculateDamage = (attacker, defender, attackType = 'physical') => {
-  // Get derived stats
-  const attackerStats = attacker.derivedStats;
-  const defenderStats = defender.derivedStats;
+  // Get derived stats - FIX HERE: Use battleStats instead of derivedStats
+  const attackerStats = attacker.battleStats;
+  const defenderStats = defender.battleStats;
   
   // Determine base attack and defense values based on attack type
   const attackValue = attackType === 'physical' 

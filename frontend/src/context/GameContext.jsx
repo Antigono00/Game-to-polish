@@ -304,30 +304,58 @@ export const GameProvider = ({ children }) => {
     }
   }, []);
 
-  // Load creature NFTs and related items - ADDED
+  // Load creature NFTs and related items - UPDATED
   const loadCreatureNfts = useCallback(async () => {
     try {
-      const resp = await axios.get('/api/getCreatureNfts');
-      if (resp.data.creatures) {
-        setCreatureNfts(resp.data.creatures);
+      // Ensure we have a connected Radix account
+      if (!connected || !accounts || accounts.length === 0) {
+        console.log("No connected Radix account for NFT loading, skipping");
+        return;
       }
-      if (resp.data.tools) {
-        setToolNfts(resp.data.tools);
+      
+      const accountAddress = accounts[0].address;
+      console.log('Loading creatures for account:', accountAddress);
+      
+      // Load creatures using the working endpoint (getUserCreatures instead of getCreatureNfts)
+      try {
+        const creaturesResp = await axios.post('/api/getUserCreatures', { accountAddress });
+        if (creaturesResp.data && creaturesResp.data.creatures) {
+          console.log('Successfully loaded creatures:', creaturesResp.data.creatures.length);
+          setCreatureNfts(creaturesResp.data.creatures);
+        } else {
+          console.log('No creatures returned from API');
+        }
+      } catch (creatureError) {
+        console.error('Error loading creatures:', creatureError);
       }
-      if (resp.data.spells) {
-        setSpellNfts(resp.data.spells);
+      
+      // Load tools and spells from the working endpoint
+      try {
+        const itemsResp = await axios.post('/api/getUserItems', { accountAddress });
+        if (itemsResp.data && itemsResp.data.tools) {
+          console.log('Successfully loaded tools:', itemsResp.data.tools.length);
+          setToolNfts(itemsResp.data.tools);
+        }
+        if (itemsResp.data && itemsResp.data.spells) {
+          console.log('Successfully loaded spells:', itemsResp.data.spells.length);
+          setSpellNfts(itemsResp.data.spells);
+        }
+      } catch (itemsError) {
+        console.error('Error loading items:', itemsError);
+        // Continue even if items fail to load
       }
     } catch (error) {
-      console.error('Error loading creature NFTs:', error);
+      console.error('Error in creature NFTs loading process:', error);
     }
-  }, []);
+  }, [connected, accounts]);
 
-  // Load creature NFTs when logged in - ADDED
+  // Modified useEffect to ensure it only runs when both logged in AND connected with accounts
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isLoggedIn && connected && accounts && accounts.length > 0) {
+      console.log('Triggering loadCreatureNfts: logged in with connected account');
       loadCreatureNfts();
     }
-  }, [isLoggedIn, loadCreatureNfts]);
+  }, [isLoggedIn, connected, accounts, loadCreatureNfts]);
 
   // Utility methods
   const formatResource = (val) => {

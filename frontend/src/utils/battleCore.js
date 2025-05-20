@@ -1,4 +1,30 @@
 // src/utils/battleCore.js
+import { getToolEffect, getSpellEffect } from './itemEffects';
+import { calculateDamage } from './battleCalculations';
+
+// Get maximum energy based on creature stats
+const getMaxEnergy = (creatures) => {
+  const baseEnergy = 15;
+  return baseEnergy;
+};
+
+// Helper function to recalculate stats after modifications
+const recalculateDerivedStats = (creature) => {
+  // Return the current stats if no modification is needed
+  return creature.battleStats;
+};
+
+// Get description for effect types
+const getEffectDescription = (effectType) => {
+  switch (effectType) {
+    case 'Surge': return 'Powerful but short-lived boost';
+    case 'Shield': return 'Defensive protection';
+    case 'Echo': return 'Repeating effect with longer duration';
+    case 'Drain': return 'Converts defensive stats to offense';
+    case 'Charge': return 'Builds up power over time';
+    default: return 'Enhances creature abilities';
+  }
+};
 
 // Process a full turn of battle
 export const processTurn = (gameState) => {
